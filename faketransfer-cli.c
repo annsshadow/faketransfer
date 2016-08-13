@@ -23,7 +23,7 @@ int main(int argc, const char *argv[])
     //get the command
     char command_buf[COMMAND_SIZE];
     memset(command_buf, 0, sizeof(command_buf));
-    strlcpy(command_buf, argv[2], sizeof(command_buf));
+    fake_strncpy(command_buf, argv[2], sizeof(command_buf));
     printf("Command--->%s\n", command_buf);
 
     if( strncmp(command_buf, "upload", sizeof("upload")) != 0)
@@ -66,7 +66,7 @@ int main(int argc, const char *argv[])
     //get the filename
     char filename_buf[FILENAME_SIZE];
     memset(filename_buf, 0, FILENAME_SIZE);
-    strlcpy(filename_buf, argv[3], sizeof(filename_buf));
+    fake_strncpy(filename_buf, argv[3], sizeof(filename_buf));
     printf("Filename--->%s\n", filename_buf);
 
     //send the file name
@@ -90,14 +90,14 @@ int main(int argc, const char *argv[])
     //get the destination path
     char dst_file_path[FILENAME_SIZE];
     memset(dst_file_path, 0, FILENAME_SIZE);
-    strlcpy(dst_file_path, argv[5], sizeof(dst_file_path));
-    strlcat(dst_file_path, filename_buf, sizeof(dst_file_path));
+    fake_strncpy(dst_file_path, argv[5], sizeof(dst_file_path));
+    fake_strncat(dst_file_path, filename_buf, sizeof(dst_file_path));
 
     //get the source path
     char src_file_path[FILENAME_SIZE];
     memset(src_file_path, 0, FILENAME_SIZE);
-    strlcpy(src_file_path, argv[4], sizeof(src_file_path));
-    strlcat(src_file_path, filename_buf, sizeof(src_file_path));
+    fake_strncpy(src_file_path, argv[4], sizeof(src_file_path));
+    fake_strncat(src_file_path, filename_buf, sizeof(src_file_path));
 
     //upload file
     if( strncmp(command_buf, "upload", sizeof(command_buf)) == 0 )

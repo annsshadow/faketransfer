@@ -22,8 +22,8 @@
 #define FILENAME_SIZE	100
 #define SEND_SIZE		1024*8
 #define RECV_SIZE		1024*8
-#define COMMAND_SIZE  9
 #define MAX_LISTEN 5
+#define COMMAND_SIZE  9
 
 /**
   *@brief client to upload
@@ -47,17 +47,17 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf);
   *@brief copy size string from src to dst
   *@param[in] dst
   *@param[out] src
-  *@param[in] siz  sizeof(dst)
+  *@param[in] size  sizeof(dst)
   */
-size_t strlcpy( char *dst, const char *src, size_t size );
+size_t fake_strncpy( char *dst, const char *src, size_t size );
 
 /**
   *@brief append size string from src to dst
   *@param[in] dst
   *@param[out] src
-  *@param[in] siz  sizeof(dst)
+  *@param[in] size  sizeof(dst)
   */
-size_t strlcat( char* dst, const char* src, size_t siz );
+size_t fake_strncat( char* dst, const char* src, size_t size );
 
 /**
   *@brief send string

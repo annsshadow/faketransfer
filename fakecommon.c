@@ -13,64 +13,73 @@
 *more than size will interrupt
 *always end by '\0'
 */
-size_t strlcpy( char *dst, const char *src, size_t size )
+size_t fake_strncpy( char *dst, const char *src, size_t size )
 {
     char* d = dst;
     const char* s = src;
-    size_t n = size;
+    size_t space_length = size;
+
+    //check null or '\0'
     if ( s == 0 || d == 0 )
         return 0;
-    /* Copy as many bytes as will fit */
-    if (n != 0 && --n != 0)
+
+    //no more than size
+    if (space_length != 0 && --n != 0)
     {
         do
         {
             if ((*d++ = *s++) == 0)
                 break;
         }
-        while (--n != 0);
+        while (--space_length != 0);
     }
-    /* Not enough room in dst, add NUL and traverse rest of src */
-    if (n == 0)
+    //if Not enough room in dst, add NUL and traverse rest of src
+    if (space_length == 0)
     {
+        //fill '\0' at the end
         if (size != 0)
-            *d = '\0';                /* NUL-terminate dst */
+            *d = '\0';
         while (*s++)
             ;
     }
-    return(s - src - 1);        /* count does not include NUL */
+    //length not include the end '\0'
+    return(s - src - 1);
 }
 
 
 /*
- * append no more than (size - 1 )chars from src to dst
- * retval = strlen(dst)+strlen(src)
- * if retval > size, truncated
+ * size is the total length of dst, can't more than that
+ * retval = strlen(dst)+strlen(src) == the new length of dst
 */
-size_t strlcat( char* dst, const char* src, size_t size )
+size_t fake_strncat( char* dst, const char* src, size_t size )
 {
     char* d = dst;
     const char* s = src;
-    size_t n = size;
+    size_t space_length = size;
     size_t dlen;
+
+    //check null or '/0'
     if ( s == 0 || d == 0 )
         return 0;
-    while (n-- != 0 && *d != '\0')
+    //get the length of dst for now
+    while (space_length-- != 0 && *d != '\0')
     {
         d++;
     }
     dlen = d - dst;
-    n = size - dlen;
-    if (n == 0)
+    //if the dst is full
+    space_length = size - dlen;
+    if (space_length == 0)
     {
         return(dlen + strlen(s));
     }
+    //check src is '\0' before space_length
     while (*s != '\0')
     {
-        if (n != 1)
+        if (space_length != 1)
         {
             *d++ = *s;
-            n--;
+            space_length--;
         }
         s++;
     }
@@ -80,8 +89,7 @@ size_t strlcat( char* dst, const char* src, size_t size )
 
 
 /*
- *success:1
- *fail:-1
+ *success:1,fail:-1
  */
 int fake_send_string(int socketfd, char *string)
 {
@@ -89,6 +97,7 @@ int fake_send_string(int socketfd, char *string)
     {
         return -1;
     }
+    // write string length before string
     int len =  strlen(string) + 1;
     if( write(socketfd, &len, sizeof(int)) < 0 )
     {

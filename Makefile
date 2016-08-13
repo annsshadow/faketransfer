@@ -1,6 +1,6 @@
 ALL:faketransfer-cli faketransfer-svr
-OBJONE=faketransfer-cli.c faketransfer.c fakecommon.c
-OBJTWO=faketransfer-svr.c faketransfer.c fakecommon.c
+OBJONE=faketransfer-cli.c fakeupload.c fakecommon.c
+OBJTWO=faketransfer-svr.c fakeupload.c fakecommon.c
 faketransfer-cli:$(OBJONE)
 	gcc $(OBJONE) -o faketransfer-cli
 faketransfer-svr:$(OBJTWO)
