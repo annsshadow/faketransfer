@@ -12,11 +12,12 @@
   */
 int fake_server_uploadfile(int m_connectfd, char *filename_buf)
 {
+    //check the file name
     if( filename_buf == NULL )
     {
         return -1;
     }
-    //get the destination
+    //get the destination path length
     int dstpath_len = 0;
     if( read(m_connectfd, &dstpath_len, sizeof(int)) < 0 )
     {
@@ -24,6 +25,7 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf)
         return -1;
     }
     //printf("dstfath_len=%d\n",dstpath_len);
+    //get the destination path
     char dst_file_path[FILENAME_SIZE];
     memset(dst_file_path, 0, FILENAME_SIZE);
     if( read(m_connectfd, dst_file_path, dstpath_len) < 0 )
@@ -33,7 +35,7 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf)
     }
     printf("Destination file path--->%s\n", dst_file_path);
 
-
+    //open file
     FILE *uploadfile_fp = fopen(dst_file_path, "w");
     if( uploadfile_fp == NULL )
     {
@@ -42,7 +44,7 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf)
     }
     else
     {
-        //get file length
+        //get the file length
         long long int file_length = 0;
         if( read(m_connectfd, &file_length, sizeof(int)) < 0 )
         {
@@ -57,16 +59,16 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf)
             return -1;
         }
 
-        //upload file to server
+        //start to upload file to server
         char recvbuf[RECV_SIZE];
         memset(recvbuf, 0, sizeof(recvbuf));
         int transfer_length = 0;
         long long int transfer_sum = 0;
         while((transfer_length = recv(m_connectfd, recvbuf, RECV_SIZE, 0)) > 0)
         {
-            if( fwrite(recvbuf, sizeof(char), transfer_length, uploadfile_fp) < 0 )
+            if( fwrite(recvbuf, sizeof(char), transfer_length, uploadfile_fp) < (unsigned int)0 )
             {
-                printf("Error! File upload failed.\n");
+                printf("Error! Fwrite upload file failed\n");
                 break;
             }
             memset(recvbuf, 0, sizeof(recvbuf));
@@ -95,22 +97,23 @@ int fake_client_uploadfile(int m_socketfd, char *source_file_path, char *dest_fi
     char *src_file_path = source_file_path;
     char *dst_file_path = dest_file_path;
 
-    //printf("src file path:%s\n",src_file_path);
-    //printf("dst file path:%s\n",dst_file_path);
-    //send destination file path
+    /*printf("src file path:%s\n",src_file_path);
+    printf("dst file path:%s\n",dst_file_path);*/
+    //get and send the destination file path
     int dstpath_len = strlen(dst_file_path) + 1;
     if( write(m_socketfd, &dstpath_len, sizeof(int)) < 0 )
     {
         printf("Error! Write file_path length failed\n");
         return -1;
     }
-    //printf("dstpath_len=%d\n",dstpath_len);
+    /*printf("dstpath_len=%d\n",dstpath_len);*/
     if( write(m_socketfd, dst_file_path, dstpath_len) < 0 )
     {
         printf("Error! Write file_path failed\n");
         return -1;
     }
 
+    //open source file by read
     FILE *uploadfile_fp = fopen(src_file_path, "r");
     if(uploadfile_fp == NULL)
     {
@@ -155,10 +158,8 @@ int fake_client_uploadfile(int m_socketfd, char *source_file_path, char *dest_fi
             memset(sendbuf, 0, sizeof(sendbuf));
             transfer_sum += write_length;
             //get the process
-            percent = (transfer_sum & 0xff00000000000000)
-                      ? transfer_sum / (file_length / 100)
-                      : transfer_sum * 100 / file_length;
-            printf("\rUpload finished:%d%%", percent);
+            percent = (transfer_sum & 0xff00000000000000) ? transfer_sum / (file_length / 100) : transfer_sum * 100 / file_length;
+            printf("\rUpload file finished:%d%%", percent);
             fflush(stdout);
         }
         printf("\n");

@@ -5,17 +5,19 @@
 	> Created Time: Sat 13 Aug 2016 07:47:48 PM HKT
  ************************************************************************/
 
- #include "faketransfer.h"
+#include "faketransfer.h"
 
 /**
   *success:1,interrupt:0,fail:-1
   */
 int fake_server_downloadfile(int m_connectfd, char *filename_buf)
 {
+    //check the param
     if( filename_buf == NULL )
     {
         return -1;
     }
+
     //get the source path length
     int srcpath_len = 0;
     if( read(m_connectfd, &srcpath_len, sizeof(int)) < 0 )
@@ -24,6 +26,7 @@ int fake_server_downloadfile(int m_connectfd, char *filename_buf)
         return -1;
     }
     //printf("srcpath_len=%d\n",srcpath_len);
+    //get the source path length
     char src_file_path[FILENAME_SIZE];
     memset(src_file_path, 0, FILENAME_SIZE);
     if( read(m_connectfd, src_file_path, srcpath_len) < 0 )
@@ -33,6 +36,7 @@ int fake_server_downloadfile(int m_connectfd, char *filename_buf)
     }
     printf("Source file path--->%s\n", src_file_path);
 
+    //open file by read
     FILE* downloadfile_fp = fopen(src_file_path, "r");
     if( downloadfile_fp == NULL )
     {
@@ -94,13 +98,15 @@ int fake_server_downloadfile(int m_connectfd, char *filename_buf)
   */
 int fake_client_downloadfile(int m_socketfd, char *source_file_path, char *dest_file_path)
 {
+    //check the param
     if( source_file_path == NULL || dest_file_path == NULL )
     {
         return -1;
     }
     char *src_file_path = source_file_path;
     char *dst_file_path = dest_file_path;
-    //send the source path
+
+    //send the source path and length
     int srcpath_len = strlen(src_file_path) + 1;
     printf("Source path length--->%d\n", srcpath_len);
     if( write(m_socketfd, &srcpath_len, sizeof(int)) < 0 )
@@ -108,13 +114,14 @@ int fake_client_downloadfile(int m_socketfd, char *source_file_path, char *dest_
         printf("Error! Write file_path len failed\n");
         return -1;
     }
-    //printf("srcpath_len=%d\n",srcpath_len);
+    /*printf("srcpath_len=%d\n",srcpath_len);*/
     if( write(m_socketfd, src_file_path, srcpath_len) < 0 )
     {
         printf("Error! Write file_path failed\n");
         return -1;
     }
 
+    //open file by write
     FILE *downloadfile_fp = fopen(dst_file_path, "w");
     if(downloadfile_fp == NULL)
     {
@@ -146,7 +153,7 @@ int fake_client_downloadfile(int m_socketfd, char *source_file_path, char *dest_
         int percent = 0;
         while((transfer_length = recv(m_socketfd, recvbuf, sizeof(recvbuf), 0)) > 0)
         {
-            if( fwrite(recvbuf, sizeof(char), transfer_length, downloadfile_fp) == -1 )
+            if( fwrite(recvbuf, sizeof(char), transfer_length, downloadfile_fp) < (unsigned int)0 )
             {
                 printf("Error! File download failed\n");
                 break;

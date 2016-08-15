@@ -24,7 +24,7 @@ size_t fake_strncpy( char *dst, const char *src, size_t size )
         return 0;
 
     //no more than size
-    if (space_length != 0 && --n != 0)
+    if (space_length != 0 && --space_length != 0)
     {
         do
         {

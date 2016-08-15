@@ -42,6 +42,22 @@ int fake_client_uploadfile(int m_socketfd, char *src_file_path, char *dst_file_p
   */
 int fake_server_uploadfile(int m_connectfd, char *filename_buf);
 
+/**
+  *@brief client to download
+  *@param[in] m_connectfd
+  *@param[in] src_file_path
+  *@param[in] dst_file_path
+  *@return success:1,interrupt:0,wrong:-1
+  */
+int fake_client_downloadfile(int m_socketfd, char *src_file_path, char *dst_file_path);
+
+/**
+  *@brief server to download
+  *@param[in] m_connectfd
+  *@param[in] filename_buf
+  *@return success:1,interrupt:0,wrong:-1
+  */
+int fake_server_downloadfile(int m_connectfd, char *filename_buf);
 
 /**
   *@brief copy size string from src to dst

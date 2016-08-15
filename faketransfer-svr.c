@@ -9,19 +9,22 @@
 
 int main(int argc, char *argv[])
 {
+    //check the param
     if( argc != 1)
     {
-        printf("Usage:$./swserver\n");
+        printf("Usage:$./faketransfer-svr\n");
         return 0;
     }
+
     //create TCP socket
     int m_socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if(m_socketfd == -1)
     {
-        printf("socket failed!\n");
+        printf("Error! Create TCP socket failed\n");
         return 0;
     }
-    //define server IP + Port
+
+    //bind server IP + Port
     struct sockaddr_in serveraddr;
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
@@ -29,21 +32,22 @@ int main(int argc, char *argv[])
     serveraddr.sin_port = htons(SERVER_PORT);
     if(-1 == bind(m_socketfd, (struct sockaddr*)&serveraddr, sizeof(serveraddr)))
     {
-        printf("Error! Bind failed\n");
+        printf("Error! Bind socket failed\n");
         close(m_socketfd);
         m_socketfd = -1;
         return 0;
     }
+
     //make the port reuse
     int on = 1;
-    if( -1 == setsockopt(m_socketfd, SOL_SOCKET, SO_REUSEADDR,
-                         (const char*)&on, sizeof(on)) )
+    if( -1 == setsockopt(m_socketfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on)) )
     {
-        printf("Error! Setsockopt failed\n");
+        printf("Error! Setsockopt REUSEADDR failed\n");
         close(m_socketfd);
         m_socketfd = -1;
         return 0;
     }
+
     //Listen the port
     if( -1 == listen(m_socketfd, MAX_LISTEN) )
     {
@@ -61,8 +65,10 @@ int main(int argc, char *argv[])
     char filename_buf[FILENAME_SIZE];
     char command_buf[9];
 
+    //wait for client command
     for(;;)
     {
+        //accept client socket
         memset(&clientaddr, 0, clientaddr_len);
         m_connectfd = accept(m_socketfd, (struct sockaddr*)&clientaddr, &clientaddr_len);
         if( m_connectfd == -1 )
@@ -71,15 +77,13 @@ int main(int argc, char *argv[])
             continue;
         }
         memset(peer_addr, 0, sizeof(peer_addr));
-        printf("You have a new connection--->[%s:%hu]\n",
-               inet_ntop(AF_INET, &clientaddr.sin_addr, peer_addr, clientaddr_len),
-               ntohs(clientaddr.sin_port));
+        printf("You have a new connection--->[%s:%hu]\n", inet_ntop(AF_INET, &clientaddr.sin_addr, peer_addr, clientaddr_len), ntohs(clientaddr.sin_port));
 
-        //get the filename
+        //get the filename length and name
         int filename_len = 0;
         if( read(m_connectfd, &filename_len, sizeof(int)) < 0 )
         {
-            printf("Error! Read filename_len failed\n");
+            printf("Error! Read filename length failed\n");
             close(m_connectfd);
             m_connectfd = -1;
             continue;
@@ -92,13 +96,13 @@ int main(int argc, char *argv[])
             m_connectfd = -1;
             continue;
         }
-        printf("filename:%s\n", filename_buf);
+        printf("Filename--->%s\n", filename_buf);
 
-        //get the command
+        //get the command length and name
         int command_len = 0;
         if( read(m_connectfd, &command_len, sizeof(int)) < 0 )
         {
-            printf("Error!Read command_len failed\n");
+            printf("Error!Read command length failed\n");
             close(m_connectfd);
             m_connectfd = -1;
             continue;
@@ -106,15 +110,43 @@ int main(int argc, char *argv[])
         memset(command_buf, 0, sizeof(command_buf));
         if( read(m_connectfd, command_buf, command_len) < 0 )
         {
-            printf("Error!Read command failed\n");
+            printf("Error!Read command name failed\n");
             close(m_connectfd);
             m_connectfd = -1;
             continue;
         }
-        printf("command:%s\n", command_buf);
+        printf("Command--->%s\n", command_buf);
 
+        //download the file
+        if( strncmp(command_buf, "download", sizeof("download")) == 0 )
+        {
+            int transfer_state = fake_server_downloadfile(m_connectfd, filename_buf);
+            //printf("transfer_state=%d\n",transfer_state);
+            if( transfer_state == 1 )
+            {
+                printf("Download Success--->%s\n", filename_buf);
+                close(m_connectfd);
+                m_connectfd = -1;
+                continue;
+            }
+            else if( transfer_state == 0 )
+            {
+                printf("Download Interrupt--->%s\n");
+                close(m_connectfd);
+                m_connectfd = -1;
+                continue;
+            }
+            //-1
+            else
+            {
+                printf("Download Error\n");
+                close(m_connectfd);
+                m_connectfd = -1;
+                continue;
+            }
+        }
         //upload the file
-        if( strncmp(command_buf, "upload", sizeof("download")) == 0 )
+        else if( strncmp(command_buf, "upload", sizeof("upload")) == 0 )
         {
             int transfer_state = fake_server_uploadfile(m_connectfd, filename_buf);
             if( transfer_state == 1 )
@@ -131,6 +163,7 @@ int main(int argc, char *argv[])
                 m_connectfd = -1;
                 continue;
             }
+            //-1
             else
             {
                 printf("Upload Error\n");
@@ -141,7 +174,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            printf("Wrong Command! Use upload\n");
+            printf("Usage:%s can only use upload or download\n");
             close(m_connectfd);
             m_connectfd = -1;
             continue;;
