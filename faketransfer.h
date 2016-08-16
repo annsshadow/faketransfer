@@ -36,61 +36,63 @@
 #define COMMAND_SIZE  9
 
 /**
-  *@brief client to upload
-  *@param[in] m_connectfd
-  *@param[in] src_file_path
-  *@param[in] dst_file_path
-  *@return success:1,interrupt:0,wrong:-1
-  */
+ * [fake_client_uploadfile what client should do when upload]
+ * @param  {[int]} m_socketfd [connection fd]
+ * @param  {[char *]} src_file_path [point to suorce file path]
+ * @param  {[char *]} dest_file_path [point to destination file path]
+ * @return {[int]}  success:1, interrupt:0, failed:-1 [status code]
+ */
 int fake_client_uploadfile(int m_socketfd, char *src_file_path, char *dst_file_path);
 
 /**
-  *@brief server to upload
-  *@param[in] m_connectfd
-  *@param[in] filename_buf
-  *@return success:1,interrupt:0,wrong:-1
-  */
+ * [fake_server_uploadfile what server should do when upload]
+ * @param  {[int]} m_connectfd [connection fd]
+ * @param  {[char *]} filename_buf [point to filename]
+ * @return {[int]} success:1, interrupt:0, failed:-1  [status code]
+ */
 int fake_server_uploadfile(int m_connectfd, char *filename_buf);
 
 /**
-  *@brief client to download
-  *@param[in] m_connectfd
-  *@param[in] src_file_path
-  *@param[in] dst_file_path
-  *@return success:1,interrupt:0,wrong:-1
-  */
+ * [fake_client_downloadfile what client should do when download]
+ * @param  {[int]} m_socketfd [connection fd]
+ * @param  {[char *]} src_file_path [point to suorce file path]
+ * @param  {[char *]} dest_file_path [point to destination file path]
+ * @return {[int]}  success:1, interrupt:0, failed:-1 [status code]
+ */
 int fake_client_downloadfile(int m_socketfd, char *src_file_path, char *dst_file_path);
 
 /**
-  *@brief server to download
-  *@param[in] m_connectfd
-  *@param[in] filename_buf
-  *@return success:1,interrupt:0,wrong:-1
-  */
+ * [fake_server_downloadfile what server should do when download]
+ * @param  {[int]} m_connectfd [connection fd]
+ * @param  {[char *]} filename_buf [point to filename]
+ * @return {[int]} success:1, interrupt:0, failed:-1  [status code]
+ */
 int fake_server_downloadfile(int m_connectfd, char *filename_buf);
 
 /**
-  *@brief copy size string from src to dst
-  *@param[in] dst
-  *@param[out] src
-  *@param[in] size  sizeof(dst)
-  */
+ * [fake_strncpy most copy (size -1) chars from source to destination,always end by '/0']
+ * @param  {[char *]} dst [point to string destination]
+ * @param  {[const char *]} src [point to string source]
+ * @param  {[size_t]} size [most copy (size -1) chars]
+ * @return {[size_t]} [the length copy from source string, not include the end '/0']
+ */
 size_t fake_strncpy( char *dst, const char *src, size_t size );
 
 /**
-  *@brief append size string from src to dst
-  *@param[in] dst
-  *@param[out] src
-  *@param[in] size  sizeof(dst)
-  */
+ * [fake_strncat most append string from src to dst, no longer than the length of dst]
+ * @param  {[char *]} dst [point to string destination]
+ * @param  {[const char *]} src [point to string source]
+ * @param  {[size_t]} size [most copy (size -1) chars]
+ * @return {[size_t]} [the new length of dst]
+ */
 size_t fake_strncat( char* dst, const char* src, size_t size );
 
 /**
-  *@brief send string
-  *@param[in] socketfd
-  *@param[out] string
-  *@return success:1,fail:-1
-  */
+ * [fake_send_string write some string to connection fd]
+ * @param  {[int]} socketfd [the connection fd]
+ * @param  {[char *]} string [point to the string ]
+ * @return {[int]} [success:1,fail:-1]
+ */
 int fake_send_string(int socketfd, char *string);
 
 

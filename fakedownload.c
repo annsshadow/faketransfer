@@ -8,8 +8,11 @@
 #include "faketransfer.h"
 
 /**
-  *success:1,interrupt:0,fail:-1
-  */
+ * [fake_server_downloadfile what server should do when download]
+ * @param  {[int]} m_connectfd [connection fd]
+ * @param  {[char *]} filename_buf [point to filename]
+ * @return {[int]} success:1, interrupt:0, failed:-1  [status code]
+ */
 int fake_server_downloadfile(int m_connectfd, char *filename_buf)
 {
     //check the param
@@ -25,7 +28,7 @@ int fake_server_downloadfile(int m_connectfd, char *filename_buf)
         printf("Error! Read file_path failed\n");
         return -1;
     }
-    //printf("srcpath_len=%d\n",srcpath_len);
+
     //get the source path length
     char src_file_path[FILENAME_SIZE];
     memset(src_file_path, 0, FILENAME_SIZE);
@@ -84,7 +87,6 @@ int fake_server_downloadfile(int m_connectfd, char *filename_buf)
 
         fclose(downloadfile_fp);
         downloadfile_fp = NULL;
-        //printf("transfer_length=%d\n",transfer_length);
         //success
         if( transfer_sum == file_length )
             return 1;
@@ -94,8 +96,12 @@ int fake_server_downloadfile(int m_connectfd, char *filename_buf)
 }
 
 /**
-  *success:1,interrupt:0,fail:-1
-  */
+ * [fake_client_downloadfile what client should do when download]
+ * @param  {[int]} m_socketfd [connection fd]
+ * @param  {[char *]} src_file_path [point to suorce file path]
+ * @param  {[char *]} dest_file_path [point to destination file path]
+ * @return {[int]}  success:1, interrupt:0, failed:-1 [status code]
+ */
 int fake_client_downloadfile(int m_socketfd, char *source_file_path, char *dest_file_path)
 {
     //check the param
@@ -169,7 +175,6 @@ int fake_client_downloadfile(int m_socketfd, char *source_file_path, char *dest_
         printf("\n");
         fclose(downloadfile_fp);
         downloadfile_fp = NULL;
-        //printf("tranfer_length = %d\n",transfer_length);
         if( percent == 100 )
         {
             return 1;

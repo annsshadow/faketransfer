@@ -7,9 +7,11 @@
 #include "faketransfer.h"
 
 /**
-  * client sent filename_buf to server
-  * success:1,interrupt:0,fail:-1
-  */
+ * [fake_server_uploadfile what server should do when upload]
+ * @param  {[int]} m_connectfd [connection fd]
+ * @param  {[char *]} filename_buf [point to filename]
+ * @return {[int]} success:1, interrupt:0, failed:-1  [status code]
+ */
 int fake_server_uploadfile(int m_connectfd, char *filename_buf)
 {
     //check the file name
@@ -24,7 +26,6 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf)
         printf("Error! Write file_path len failed\n");
         return -1;
     }
-    //printf("dstfath_len=%d\n",dstpath_len);
     //get the destination path
     char dst_file_path[FILENAME_SIZE];
     memset(dst_file_path, 0, FILENAME_SIZE);
@@ -84,10 +85,14 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf)
     return 0;
 }
 
+
 /**
-  * upload file from source_file_path to dest_file_path
-  * success:1, interrupt:0, failed:-1
-  */
+ * [fake_client_uploadfile what client should do when upload]
+ * @param  {[int]} m_socketfd [connection fd]
+ * @param  {[char *]} src_file_path [point to suorce file path]
+ * @param  {[char *]} dest_file_path [point to destination file path]
+ * @return {[int]}  success:1, interrupt:0, failed:-1 [status code]
+ */
 int fake_client_uploadfile(int m_socketfd, char *source_file_path, char *dest_file_path)
 {
     if( source_file_path == NULL || dest_file_path == NULL )
@@ -97,8 +102,6 @@ int fake_client_uploadfile(int m_socketfd, char *source_file_path, char *dest_fi
     char *src_file_path = source_file_path;
     char *dst_file_path = dest_file_path;
 
-    /*printf("src file path:%s\n",src_file_path);
-    printf("dst file path:%s\n",dst_file_path);*/
     //get and send the destination file path
     int dstpath_len = strlen(dst_file_path) + 1;
     if( write(m_socketfd, &dstpath_len, sizeof(int)) < 0 )
@@ -106,7 +109,7 @@ int fake_client_uploadfile(int m_socketfd, char *source_file_path, char *dest_fi
         printf("Error! Write file_path length failed\n");
         return -1;
     }
-    /*printf("dstpath_len=%d\n",dstpath_len);*/
+
     if( write(m_socketfd, dst_file_path, dstpath_len) < 0 )
     {
         printf("Error! Write file_path failed\n");

@@ -7,12 +7,13 @@
 
 #include "faketransfer.h"
 
-/*
-*copy size string from src to dst
-*most copy (size-1)
-*more than size will interrupt
-*always end by '\0'
-*/
+/**
+ * [fake_strncpy most copy (size -1) chars from source to destination,always end by '/0']
+ * @param  {[char *]} dst [point to string destination]
+ * @param  {[const char *]} src [point to string source]
+ * @param  {[size_t]} size [most copy (size -1) chars]
+ * @return {[size_t]} [the length copy from source string, not include the end '/0']
+ */
 size_t fake_strncpy( char *dst, const char *src, size_t size )
 {
     char* d = dst;
@@ -47,10 +48,13 @@ size_t fake_strncpy( char *dst, const char *src, size_t size )
 }
 
 
-/*
- * size is the total length of dst, can't more than that
- * retval = strlen(dst)+strlen(src) == the new length of dst
-*/
+/**
+ * [fake_strncat most append string from src to dst, no longer than the length of dst]
+ * @param  {[char *]} dst [point to string destination]
+ * @param  {[const char *]} src [point to string source]
+ * @param  {[size_t]} size [most copy (size -1) chars]
+ * @return {[size_t]} [the new length of dst]
+ */
 size_t fake_strncat( char* dst, const char* src, size_t size )
 {
     char* d = dst;
@@ -88,8 +92,11 @@ size_t fake_strncat( char* dst, const char* src, size_t size )
 }
 
 
-/*
- *success:1,fail:-1
+/**
+ * [fake_send_string write some string to connection fd]
+ * @param  {[int]} socketfd [the connection fd]
+ * @param  {[char *]} string [point to the string ]
+ * @return {[int]} [success:1,fail:-1]
  */
 int fake_send_string(int socketfd, char *string)
 {
