@@ -20,8 +20,18 @@
 
 #define SERVER_PORT     12321
 #define FILENAME_SIZE	100
-#define SEND_SIZE		1024*8
-#define RECV_SIZE		1024*8
+
+//#define SEND_SIZE		1024*8
+//#define RECV_SIZE		1024*8
+#define SEND_SIZE		1024*16
+#define RECV_SIZE		1024*16
+//#define SEND_SIZE		1024*32
+//#define RECV_SIZE		1024*32
+//#define SEND_SIZE		1024*64
+//#define RECV_SIZE		1024*64
+//#define SEND_SIZE		1024*128
+//#define RECV_SIZE		1024*128
+
 #define MAX_LISTEN 5
 #define COMMAND_SIZE  9
 
