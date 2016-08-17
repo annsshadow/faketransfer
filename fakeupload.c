@@ -95,6 +95,7 @@ int fake_server_uploadfile(int m_connectfd, char *filename_buf)
  */
 int fake_client_uploadfile(int m_socketfd, char *source_file_path, char *dest_file_path)
 {
+    //check the param
     if( source_file_path == NULL || dest_file_path == NULL )
     {
         return -1;

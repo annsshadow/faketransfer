@@ -29,7 +29,7 @@ int fake_server_downloadfile(int m_connectfd, char *filename_buf)
         return -1;
     }
 
-    //get the source path length
+    //get the source path
     char src_file_path[FILENAME_SIZE];
     memset(src_file_path, 0, FILENAME_SIZE);
     if( read(m_connectfd, src_file_path, srcpath_len) < 0 )
@@ -120,7 +120,7 @@ int fake_client_downloadfile(int m_socketfd, char *source_file_path, char *dest_
         printf("Error! Write file_path len failed\n");
         return -1;
     }
-    /*printf("srcpath_len=%d\n",srcpath_len);*/
+
     if( write(m_socketfd, src_file_path, srcpath_len) < 0 )
     {
         printf("Error! Write file_path failed\n");
