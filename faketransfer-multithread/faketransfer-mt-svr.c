@@ -9,10 +9,8 @@
 
 int main(int argc, char **argv)
 {
-    printf("################# FAKETRANSFER-SERVER #################\n");
+    printf("****** faketransfer-mt-svr ******\n");
     int port = PORT;
-    if (argc > 1)
-        port = atoi(argv[1]);
 
     //根据全局配置创建线程池
     if (tpool_create(THREAD_NUM) != 0)
