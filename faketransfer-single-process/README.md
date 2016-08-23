@@ -1,4 +1,4 @@
-# faketransfer
+# faketransfer-single-process
 a file transfer with download and upload function
 
 ## Technology
