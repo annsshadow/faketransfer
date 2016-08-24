@@ -27,7 +27,7 @@ int create_file(char *filename, unsigned int size)
     return 0;
 }
 
-//receive file info or file block according to request type
+//thread main work : receive file info or file block according to request type
 void * worker(void *argc)
 {
     //receive request type
@@ -72,13 +72,13 @@ void * worker(void *argc)
 //receive file info
 void recv_fileinfo(int sockfd)
 {
-    //接收文件信息
+    //get the file info
     char fileinfo_buf[100] = {0};
     bzero(fileinfo_buf, fileinfo_len);
-    int n = 0;
-    for(n = 0; n < fileinfo_len; n++)
+    int index_info = 0;
+    for(index_info = 0; index_info < fileinfo_len; index_info++)
     {
-        recv(sockfd, &fileinfo_buf[n], 1, 0);
+        recv(sockfd, &fileinfo_buf[index_info], 1, 0);
     }
 
     struct fileinfo finfo;
@@ -88,30 +88,29 @@ void recv_fileinfo(int sockfd)
     printf("Filename = %s\nFilesize = %u\nCount = %d\nBs = %u\n", finfo.filename, finfo.filesize, finfo.count, finfo.bs);
     printf("------------------------\n");
 
-    //创建目标文件
+    //create / open file
     char filepath[100] = {0};
     strcpy(filepath, finfo.filename);
     create_file(filepath, finfo.filesize);
-    int fd = 0;
-    if((fd = open(filepath, O_RDWR)) == -1 )
+    int file_fd = 0;
+    if((file_fd = open(filepath, O_RDWR)) == -1 )
     {
-        printf("open file erro\n");
+        printf("Error! create_file\n");
         exit(-1);
     }
-    //使用mmap
-    char *map = (char *)mmap(NULL, finfo.filesize, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
-    close(fd);
 
-    //向g_connection[]中添加连接-带互斥锁
+    //use mmap and close file fd
+    char *map = (char *)mmap(NULL, finfo.filesize, PROT_WRITE | PROT_READ, MAP_SHARED, file_fd, 0);
+    close(file_fd);
+
+    //add a new connection to g_connection[] with mutex lock
     pthread_mutex_lock(&conn_lock);
-
     printf("--- receive fileinfo : Lock conn_lock, enter g_connection[] ---\n");
     while( g_connection[connection_suffix].used )
     {
         ++connection_suffix;
         connection_suffix = connection_suffix % CONN_MAX;
     }
-    //记录信息到g_connection
     bzero(&g_connection[connection_suffix].filename, FILENAME_MAXLEN);
     g_connection[connection_suffix].info_fd = sockfd;
     strcpy(g_connection[connection_suffix].filename, finfo.filename);
@@ -121,68 +120,63 @@ void recv_fileinfo(int sockfd)
     g_connection[connection_suffix].mbegin = map;
     g_connection[connection_suffix].recvcount = 0;
     g_connection[connection_suffix].used = 1;
-
     pthread_mutex_unlock(&conn_lock);
     printf("--- receive fileinfo : Unock conn_lock, exit g_connection[] ---\n");
 
-    //发送connection_suffix--g_connection[]数组下标，作为确认，每个分块都将携带id
+    //send connection_suffix(g_connection[]) to client as the ack of every block later
     char connection_suffix_buf[INT_SIZE] = {0};
     memcpy(connection_suffix_buf, &connection_suffix, INT_SIZE);
     send(sockfd, connection_suffix_buf, INT_SIZE, 0);
-    uint32_t test = 0;
-    memcpy(&test, connection_suffix_buf, 4);
-    int connection_suffix = test;
+    uint32_t int_32 = 0;
+    memcpy(&int_32, connection_suffix_buf, 4);
+    int connection_suffix = int_32;
     printf("connection_suffix = %d\n", connection_suffix);
 
     return;
 }
 
-//接收文件数据
+//receive file block
 void recv_filedata(int sockfd)
 {
-    //读取分块头部信息
+    //get block head info
     int recv_size = 0;
     char head_buf[100] = {0};
-    char *p = head_buf;
-    while(1)
+    char *p_head = head_buf;
+    for(;;)
     {
-        if( recv(sockfd, p, 1, 0) == 1 )
+        if( recv(sockfd, p_head, 1, 0) == 1 )
         {
             ++recv_size;
             if(recv_size == head_len)
                 break;
-            ++p;
+            ++p_head;
         }
     }
-
     struct head fhead;
     memcpy(&fhead, head_buf, head_len);
     int recv_id = fhead.id;
 
-    //计算本文件数据块在map中起始地址fp
+    //compute the begin address of this file block in mmap
     unsigned int recv_offset = fhead.offset;
-    char *fp = g_connection[recv_id].mbegin + recv_offset;
-
+    char *map_block_begin = g_connection[recv_id].mbegin + recv_offset;
     printf("------- Blockhead -------\n");
-    printf("Filename = %s\nFiledata id = %d\nOffset=%u\nBs = %u\nstart addr= %p\n", fhead.filename, fhead.id, fhead.offset, fhead.bs, fp);
+    printf("Filename = %s\nFiledata id = %d\nOffset=%u\nBs = %u\nstart addr= %p\n", fhead.filename, fhead.id, fhead.offset, fhead.bs, map_block_begin);
     printf("-------------------------\n");
 
-    //接收数据，往mmap内存写
+    //get block data and write to mmap
     unsigned int remain_size = fhead.bs;
     int have_recv_size = 0;
     while(remain_size > 0)
     {
-        if((have_recv_size = recv(sockfd, fp, RECVBUF_SIZE, 0)) > 0)
+        if((have_recv_size = recv(sockfd, map_block_begin, RECVBUF_SIZE, 0)) > 0)
         {
-            fp += have_recv_size;
+            map_block_begin += have_recv_size;
             remain_size -= have_recv_size;
         }
     }
-
     printf("------------- Have receive a fileblock -------------\n");
 
-    //增加recv_count，如果是最后一个分块，同步map与文件，释放g_connection
-    //加锁处
+    //increase recv_count with mutex lock, if it is the last one, munmap the file and release the g_connection and close the connection
     pthread_mutex_lock(&conn_lock);
     g_connection[recv_id].recvcount++;
     if(g_connection[recv_id].recvcount == g_connection[recv_id].count)
@@ -191,17 +185,17 @@ void recv_filedata(int sockfd)
 
         printf("------------- OK! Have receive a File -------------\n ");
 
-        int fd = g_connection[recv_id].info_fd;
-        close(fd);
+        int file_fd = g_connection[recv_id].info_fd;
+        close(file_fd);
         bzero(&g_connection[recv_id], conn_len);
     }
     pthread_mutex_unlock(&conn_lock);
-
+    //the main connection of client
     close(sockfd);
     return;
 }
 
-//初始化服务端
+//initial server connection
 int server_connection_init(int port)
 {
     int listen_fd;
@@ -232,10 +226,20 @@ int server_connection_init(int port)
     return listen_fd;
 }
 
-//设置fd非阻塞
 void set_fd_noblock(int fd)
 {
-    int flag = fcntl(fd, F_GETFL, 0);
-    fcntl(fd, F_SETFL, flag | O_NONBLOCK);
+    int opts;
+    opts = fcntl(fd, F_GETFL);
+    if (opts < 0)
+    {
+        fprintf(stderr, "fcntl get fd options fail\n");
+        return;
+    }
+    opts = opts | O_NONBLOCK;
+    if (fcntl(fd, F_SETFL, opts) < 0)
+    {
+        fprintf(stderr, "fcntl set fd noblocking fail\n");
+        return;
+    }
     return;
 }
