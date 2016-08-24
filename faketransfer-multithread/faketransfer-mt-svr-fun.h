@@ -80,10 +80,10 @@ struct args
 };
 
 //创建大小为size的文件
-int createfile(char *filename, unsigned int size);
+int create_file(char *filename, unsigned int size);
 
 //初始化服务端
-int Server_init(int port);
+int server_connection_init(int port);
 
 //设置fd非阻塞
 void set_fd_noblock(int fd);

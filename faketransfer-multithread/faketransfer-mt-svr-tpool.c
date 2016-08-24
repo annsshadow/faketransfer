@@ -147,7 +147,7 @@ void tpool_destroy()
 }
 
 //向线程池添加任务
-int tpool_add_work(void*(*routine)(void*), void *arg)
+int tpool_add_task(void*(*routine)(void*), void *arg)
 {
     //work指向等待加入任务链表的任务
     tpool_work_t *work;

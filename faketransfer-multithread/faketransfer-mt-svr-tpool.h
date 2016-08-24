@@ -37,6 +37,6 @@ int tpool_create(int max_thr_num);
 void tpool_destroy();
 
 //向线程池中添加任务
-int tpool_add_work(void*(*routine)(void*), void *arg);
+int tpool_add_task(void*(*routine)(void*), void *arg);
 
 #endif
