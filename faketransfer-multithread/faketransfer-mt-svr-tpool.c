@@ -49,7 +49,11 @@ static void* thread_routine()
     return NULL;
 }
 
-//create threadpool
+/**
+ * [tpool_create create threadpool]
+ * @param  max_thr_num [max number of threadpool]
+ * @return             [success:0, fail:-1]
+ */
 int tpool_create(int max_thread_num)
 {
     int index_num;
@@ -102,7 +106,9 @@ int tpool_create(int max_thread_num)
     return 0;
 }
 
-//destroy threadpool
+/**
+ * [tpool_destroy free thread, threadID array, task, lock, condition, tpool struct]
+ */
 void tpool_destroy()
 {
     int i;
@@ -146,7 +152,12 @@ void tpool_destroy()
     free(tpool);
 }
 
-//add task to chain
+/**
+ * [tpool_add_task add task to chain]
+ * @param  routine [thread main function : take task from chain and do it]
+ * @param  arg [thread params]
+ * @return             [success:0, fail:-1]
+ */
 int tpool_add_task(void*(*routine)(void*), void *arg)
 {
     tpool_work_t *work;

@@ -81,42 +81,42 @@ struct args
 };
 
 /**
- * [create_file description]
- * @param  filename [description]
- * @param  size     [description]
- * @return          [description]
+ * [create_file create a new file on svr]
+ * @param  filename [filename with absolute path]
+ * @param  size     [file size]
+ * @return          [success:0]
  */
 int create_file(char *filename, unsigned int size);
 
 /**
- * [server_connection_init description]
- * @param  port [description]
- * @return      [description]
+ * [server_connection_init initial server connection]
+ * @param  port [server port]
+ * @return      [socket fd]
  */
 int server_connection_init(int port);
 
 /**
- * [set_fd_noblock description]
- * @param fd [description]
+ * [set_fd_noblock set fd with option O_NOBLOCK]
+ * @param fd [file descriptor]
  */
 void set_fd_noblock(int fd);
 
 /**
- * [recv_fileinfo description]
- * @param sockfd [description]
+ * [recv_fileinfo receive file info, use mmap and g_connection, send back connection_suffix]
+ * @param sockfd [server socket file descriptor]
  */
 void recv_fileinfo(int sockfd);
 
 /**
- * [recv_filedata description]
- * @param sockfd [description]
+ * [recv_filedata receive file blocks, head info and munmap]
+ * @param sockfd [server socket file descriptor]
  */
 void recv_filedata(int sockfd);
 
 /**
- * [worker description]
- * @param  argc [description]
- * @return      [description]
+ * [worker thread main work : receive file info or file block according to request type]
+ * @param  argc [thread_param]
+ * @return      [NULL]
  */
 void * worker(void *argc);
 

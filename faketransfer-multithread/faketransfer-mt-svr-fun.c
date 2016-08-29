@@ -16,7 +16,12 @@ int head_len = sizeof(struct head);
 int conn_len = sizeof(struct conn);
 socklen_t sockaddr_len = sizeof(struct sockaddr);
 
-//create a new file
+/**
+ * [create_file create a new file on svr]
+ * @param  filename [filename with absolute path]
+ * @param  size     [file size]
+ * @return          [success:0]
+ */
 int create_file(char *filename, unsigned int size)
 {
     int fd = open(filename, O_RDWR | O_CREAT);
@@ -27,7 +32,11 @@ int create_file(char *filename, unsigned int size)
     return 0;
 }
 
-//thread main work : receive file info or file block according to request type
+/**
+ * [worker thread main work : receive file info or file block according to request type]
+ * @param  argc [thread_param]
+ * @return      [NULL]
+ */
 void * worker(void *argc)
 {
     //receive request type
@@ -69,7 +78,10 @@ void * worker(void *argc)
     return NULL;
 }
 
-//receive file info
+/**
+ * [recv_fileinfo receive file info, use mmap and g_connection, send back connection_suffix]
+ * @param sockfd [server socket file descriptor]
+ */
 void recv_fileinfo(int sockfd)
 {
     //get the file info
@@ -135,7 +147,10 @@ void recv_fileinfo(int sockfd)
     return;
 }
 
-//receive file block
+/**
+ * [recv_filedata receive file blocks, head info and munmap]
+ * @param sockfd [server socket file descriptor]
+ */
 void recv_filedata(int sockfd)
 {
     //get block head info
@@ -195,7 +210,11 @@ void recv_filedata(int sockfd)
     return;
 }
 
-//initial server connection
+/**
+ * [server_connection_init initial server connection]
+ * @param  port [server port]
+ * @return      [socket fd]
+ */
 int server_connection_init(int port)
 {
     int listen_fd;
@@ -226,6 +245,10 @@ int server_connection_init(int port)
     return listen_fd;
 }
 
+/**
+ * [set_fd_noblock set fd with option O_NOBLOCK]
+ * @param fd [file descriptor]
+ */
 void set_fd_noblock(int fd)
 {
     int opts;
