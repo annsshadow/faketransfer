@@ -59,42 +59,42 @@ struct head
     unsigned int bs;                   //the size of this block
 };
 
+/**
+ * [set_fd_noblock set fd with option O_NOBLOCK]
+ * @param fd [file descriptor]
+ */
 void set_fd_noblock(int fd);
 
 /**
- * [client_connect_init description]
- * @param  ip [description]
- * @return    [description]
+ * [client_connect_init initial client connection to server]
+ * @param  ip [server IP address]
+ * @return    [success:socket fd, fail:-1]
  */
 int client_connect_init(char *ip);
 
 /**
  * [send_fileinfo description]
- * @param sock_fd [description]
- * @param fname   [description]
- * @param p_fstat [description]
- * @param p_finfo [description]
- * @param flag    [description]
+ * @param sock_fd [connection socket fd]
+ * @param fname   [file name with absolute path]
+ * @param p_fstat [file property]
+ * @param p_finfo [file info]
+ * @param flag    [whether the last send block is normal(flag==0) or not(flag==1)]
  */
-void send_fileinfo(int sock_fd
-                   , char *fname
-                   , struct stat* p_fstat       //file property
-                   , struct fileinfo *p_finfo   //file info
-                   , unsigned int *flag);      //whether the last send block is normal(flag==0) or not(flag==1)
+void send_fileinfo(int sock_fd, char *fname, struct stat* p_fstat, struct fileinfo *p_finfo, unsigned int *flag);
 
 /**
- * [send_fileblock description]
- * @param  args [description]
- * @return      [description]
+ * [send_fileblock send file block and free params, close connection fd]
+ * @param  args [type:struct head * p_fhead]
+ * @return      [NULL]
  */
 void * send_fileblock(void *args);
 
 /**
- * [new_fb_head description]
- * @param  filename [description]
- * @param  freeid   [description]
- * @param  offset   [description]
- * @return          [description]
+ * [new_fb_head create new file block header info with new offset]
+ * @param  filename [file name with absolute path]
+ * @param  freeid   [connection suffix]
+ * @param  offset   [block offset in source file]
+ * @return          [struct head * p_fhead]
  */
 struct head * new_fb_head(char *filename, int freeid, unsigned int *offset);
 
