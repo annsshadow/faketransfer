@@ -61,16 +61,41 @@ struct head
 
 void set_fd_noblock(int fd);
 
+/**
+ * [client_connect_init description]
+ * @param  ip [description]
+ * @return    [description]
+ */
 int client_connect_init(char *ip);
 
+/**
+ * [send_fileinfo description]
+ * @param sock_fd [description]
+ * @param fname   [description]
+ * @param p_fstat [description]
+ * @param p_finfo [description]
+ * @param flag    [description]
+ */
 void send_fileinfo(int sock_fd
                    , char *fname
                    , struct stat* p_fstat       //file property
                    , struct fileinfo *p_finfo   //file info
                    , unsigned int *flag);      //whether the last send block is normal(flag==0) or not(flag==1)
 
+/**
+ * [send_fileblock description]
+ * @param  args [description]
+ * @return      [description]
+ */
 void * send_fileblock(void *args);
 
+/**
+ * [new_fb_head description]
+ * @param  filename [description]
+ * @param  freeid   [description]
+ * @param  offset   [description]
+ * @return          [description]
+ */
 struct head * new_fb_head(char *filename, int freeid, unsigned int *offset);
 
 #endif

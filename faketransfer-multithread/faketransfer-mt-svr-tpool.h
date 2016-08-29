@@ -30,10 +30,21 @@ typedef struct tpool
     pthread_cond_t  queue_ready;
 } tpool_t;
 
+/**
+ * [tpool_create description]
+ * @param  max_thr_num [description]
+ * @return             [description]
+ */
 int tpool_create(int max_thr_num);
 
+/**
+ * [tpool_destroy description]
+ */
 void tpool_destroy();
 
+/**
+ * 
+ */
 int tpool_add_task(void*(*routine)(void*), void *arg);
 
 #endif

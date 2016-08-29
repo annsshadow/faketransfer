@@ -80,16 +80,44 @@ struct args
     void (*recv_fdata)(int fd);
 };
 
+/**
+ * [create_file description]
+ * @param  filename [description]
+ * @param  size     [description]
+ * @return          [description]
+ */
 int create_file(char *filename, unsigned int size);
 
+/**
+ * [server_connection_init description]
+ * @param  port [description]
+ * @return      [description]
+ */
 int server_connection_init(int port);
 
+/**
+ * [set_fd_noblock description]
+ * @param fd [description]
+ */
 void set_fd_noblock(int fd);
 
+/**
+ * [recv_fileinfo description]
+ * @param sockfd [description]
+ */
 void recv_fileinfo(int sockfd);
 
+/**
+ * [recv_filedata description]
+ * @param sockfd [description]
+ */
 void recv_filedata(int sockfd);
 
+/**
+ * [worker description]
+ * @param  argc [description]
+ * @return      [description]
+ */
 void * worker(void *argc);
 
 #endif
