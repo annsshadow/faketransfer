@@ -23,3 +23,8 @@ a file transfer with download and upload function
 
 ## Result
 * Time cost between **35s ~ 42s**
+
+## Execution Flow
+* ![faketransfer-client-server](http://img-10063943.cos.myqcloud.com/faketransfer-client-server.png)
+* ![faketransfer-download](http://img-10063943.cos.myqcloud.com/faketransfer-download.png)
+* ![faketransfer-upload](http://img-10063943.cos.myqcloud.com/faketransfer-upload.png)
