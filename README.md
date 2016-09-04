@@ -53,3 +53,7 @@ a file transfer only with upload function
 
 ## Result-mt
 * Time cost between **38s ~ 60s**
+
+## Execution Flow
+* ![faketransfer-multithread-client](http://img-10063943.file.myqcloud.com/faketransfer-multithread-client.png)
+* ![faketransfer-multithread-server](http://img-10063943.file.myqcloud.com/faketransfer-multithread-server.png)
